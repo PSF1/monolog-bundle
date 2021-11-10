@@ -270,6 +270,13 @@ use Monolog\Logger;
  *   - [level]: level name or int value, defaults to DEBUG
  *   - [bubble]: bool, defaults to true
  *
+ * - rocketchat:
+ *   - webhook_url: RocketChat webhook URL
+ *   - channel: channel ID
+ *   - [ignore_error]: Disable guzzle exceptions
+ *   - [level]: level name or int value, defaults to DEBUG
+ *   - [bubble]: bool, defaults to true
+ *
  * - cube:
  *   - url: http/udp url to the cube server
  *   - [level]: level name or int value, defaults to DEBUG
@@ -469,13 +476,13 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('room')->end() // hipchat
                             ->scalarNode('message_format')->defaultValue('text')->end() // hipchat
                             ->scalarNode('api_version')->defaultNull()->end() // hipchat
-                            ->scalarNode('channel')->defaultNull()->end() // slack & slackwebhook & slackbot
+                            ->scalarNode('channel')->defaultNull()->end() // slack & slackwebhook & slackbot & rocketchat
                             ->scalarNode('bot_name')->defaultValue('Monolog')->end() // slack & slackwebhook
                             ->scalarNode('use_attachment')->defaultTrue()->end() // slack & slackwebhook
                             ->scalarNode('use_short_attachment')->defaultFalse()->end() // slack & slackwebhook
                             ->scalarNode('include_extra')->defaultFalse()->end() // slack & slackwebhook
                             ->scalarNode('icon_emoji')->defaultNull()->end() // slack & slackwebhook
-                            ->scalarNode('webhook_url')->end() // slackwebhook
+                            ->scalarNode('webhook_url')->end() // slackwebhook & rocketchat
                             ->scalarNode('team')->end() // slackbot
                             ->scalarNode('notify')->defaultFalse()->end() // hipchat
                             ->scalarNode('nickname')->defaultValue('Monolog')->end() // hipchat
@@ -564,7 +571,7 @@ class Configuration implements ConfigurationInterface
                             ->end() // elasticsearch
                             ->scalarNode('index')->defaultValue('monolog')->end() // elasticsearch
                             ->scalarNode('document_type')->defaultValue('logs')->end() // elasticsearch
-                            ->scalarNode('ignore_error')->defaultValue(false)->end() // elasticsearch
+                            ->scalarNode('ignore_error')->defaultValue(false)->end() // elasticsearch & rocketchat
                             ->arrayNode('redis')
                                 ->canBeUnset()
                                 ->beforeNormalization()
@@ -918,6 +925,10 @@ class Configuration implements ConfigurationInterface
                         ->validate()
                             ->ifTrue(function ($v) { return 'slackbot' === $v['type'] && (empty($v['team']) || empty($v['token']) || empty($v['channel'])); })
                             ->thenInvalid('The team, token and channel have to be specified to use a SlackbotHandler')
+                        ->end()
+                        ->validate()
+                            ->ifTrue(function ($v) { return 'rocketchat' === $v['type'] && (empty($v['webhook_url']) || empty($v['channel'])); })
+                            ->thenInvalid('The webhook_url and channel have to be specified to use a RocketChatHandler')
                         ->end()
                         ->validate()
                             ->ifTrue(function ($v) { return 'cube' === $v['type'] && empty($v['url']); })

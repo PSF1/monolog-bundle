@@ -695,6 +695,17 @@ class MonologExtension extends Extension
             ]);
             break;
 
+        case 'rocketchat':
+            $definition->setArguments([
+                [$handler['webhook_url']],
+                $handler['channel'],
+                $handler['ignore_error'],
+                null,
+                $handler['level'],
+                $handler['bubble'],
+            ]);
+            break;
+
         case 'cube':
             $definition->setArguments([
                 $handler['url'],
@@ -974,6 +985,7 @@ class MonologExtension extends Extension
             'slack' => 'Monolog\Handler\SlackHandler',
             'slackwebhook' => 'Monolog\Handler\SlackWebhookHandler',
             'slackbot' => 'Monolog\Handler\SlackbotHandler',
+            'rocketchat' => 'ExileeD\Monolog\RocketChat\RocketChatHandler',
             'cube' => 'Monolog\Handler\CubeHandler',
             'amqp' => 'Monolog\Handler\AmqpHandler',
             'error_log' => 'Monolog\Handler\ErrorLogHandler',
